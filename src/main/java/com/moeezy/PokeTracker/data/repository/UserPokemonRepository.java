@@ -12,4 +12,7 @@ import java.util.Optional;
 public interface UserPokemonRepository extends JpaRepository<UserPokemon, UserPokemonId> {
     @Query("Select p from UserPokemon p WHERE p.userId = :userId AND p.pokedexNumber = :pokedexNumber")
     Optional<UserPokemon> findUserPokemon(long userId, int pokedexNumber);
+
+    @Query("Select p from UserPokemon p WHERE p.userId = :userId AND p.caught = true AND p.shiny = true")
+    Optional<UserPokemon> findUserShinyPokemon(long userId);
 }

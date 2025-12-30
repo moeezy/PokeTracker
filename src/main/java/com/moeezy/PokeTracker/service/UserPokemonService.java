@@ -25,4 +25,12 @@ public class UserPokemonService {
         }
         return Optional.empty();
     }
+
+    public Optional<UserPokemon> findUserShinyPokemon(long userId){
+        try{
+            return userPokemonRepository.findUserShinyPokemon(userId);
+        } catch (Exception e) {
+        }
+        return Optional.empty();
+    }
 }

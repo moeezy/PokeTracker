@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/userPokemon")
+@RequestMapping("/v1/userPokemon")
 public class UserPokemonController {
 
     private final UserPokemonService userPokemonService;
@@ -29,6 +29,17 @@ public class UserPokemonController {
         if(userPokemon.isEmpty()){
             throw new NotFoundException("UserPokemon not found with id: " + userId + "and pokedex Number: " + pokedexNumber);
         }
+        return userPokemon.get();
+    }
+
+    @GetMapping("/{userId}/shiny")
+    public UserPokemon findUserShinyPokemon(@PathVariable long userId){
+        Optional<UserPokemon> userPokemon = this.userPokemonService.findUserShinyPokemon(userId);
+
+        if(userPokemon.isEmpty()){
+            throw new NotFoundException("UserPokemon not found with id: " + userId);
+        }
+
         return userPokemon.get();
     }
 }

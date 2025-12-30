@@ -1,7 +1,7 @@
 package com.moeezy.PokeTracker.web;
 
 import com.moeezy.PokeTracker.data.entity.RouteEncounter;
-import com.moeezy.PokeTracker.data.repository.RouteEncounterRepository;
+import com.moeezy.PokeTracker.service.RouteEncounterService;
 import com.moeezy.PokeTracker.web.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,16 +14,16 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/v1/RouteEncounter")
 public class RouteEncounterController {
-    private final RouteEncounterRepository routeEncounterRepository;
+    private final RouteEncounterService routeEncounterService;
 
     @Autowired
-    public RouteEncounterController(RouteEncounterRepository routeEncounterRepository){
-        this.routeEncounterRepository = routeEncounterRepository;
+    public RouteEncounterController(RouteEncounterService routeEncounterService){
+        this.routeEncounterService = routeEncounterService;
     }
 
     @GetMapping("/{routeId}/{time}")
     public RouteEncounter findAvailableRoutePokemon(@PathVariable int routeId, @PathVariable String time){
-        Optional<RouteEncounter> routeEncounter = routeEncounterRepository.findAvailableRoutePokemon(routeId, time);
+        Optional<RouteEncounter> routeEncounter = routeEncounterService.findAvailableRoutePokemon(routeId, time);
 
         if(routeEncounter.isEmpty()){
             throw new NotFoundException("Route Data not found for route: " + routeId + " and time: " + time);

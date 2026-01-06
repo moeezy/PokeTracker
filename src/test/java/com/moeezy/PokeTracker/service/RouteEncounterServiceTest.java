@@ -46,8 +46,6 @@ public class RouteEncounterServiceTest {
 
         List<RouteEncounter> encounters = List.of(routeEncounter1, routeEncounter2);
 
-        routeEncounterRepositoryMock.save(routeEncounter2);
-
         when(routeEncounterRepositoryMock.findAvailableRoutePokemon(routeId, time)).thenReturn(encounters);
 
         List<RouteEncounter> routeEncounterResult = routeEncounterServiceMock.findAvailableRoutePokemon(routeId, time);

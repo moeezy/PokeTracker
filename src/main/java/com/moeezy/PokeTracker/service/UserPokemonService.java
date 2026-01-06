@@ -5,6 +5,7 @@ import com.moeezy.PokeTracker.data.repository.UserPokemonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,19 +19,13 @@ public class UserPokemonService {
     }
 
     public Optional<UserPokemon> findUserPokemon(long userId, int pokedexNumber){
-        try{
+        if(userPokemonRepository.findUserPokemon(userId, pokedexNumber).isPresent()){
             return userPokemonRepository.findUserPokemon(userId, pokedexNumber);
-        }catch (Exception ignored){
-
         }
         return Optional.empty();
     }
 
-    public Optional<UserPokemon> findUserShinyPokemon(long userId){
-        try{
+    public List<UserPokemon> findUserShinyPokemon(long userId){
             return userPokemonRepository.findUserShinyPokemon(userId);
-        } catch (Exception e) {
-        }
-        return Optional.empty();
     }
 }

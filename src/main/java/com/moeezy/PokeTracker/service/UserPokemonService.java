@@ -19,10 +19,7 @@ public class UserPokemonService {
     }
 
     public Optional<UserPokemon> findUserPokemon(long userId, int pokedexNumber){
-        if(userPokemonRepository.findUserPokemon(userId, pokedexNumber).isPresent()){
             return userPokemonRepository.findUserPokemon(userId, pokedexNumber);
-        }
-        return Optional.empty();
     }
 
     public List<UserPokemon> findUserShinyPokemon(long userId){

@@ -4,15 +4,17 @@ import com.moeezy.PokeTracker.data.entity.UserPokemon;
 import com.moeezy.PokeTracker.service.UserPokemonService;
 import com.moeezy.PokeTracker.web.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/userPokemon")
+@RequestMapping("/v1/userPokemon")
 public class UserPokemonController {
 
     private final UserPokemonService userPokemonService;
@@ -30,5 +32,16 @@ public class UserPokemonController {
             throw new NotFoundException("UserPokemon not found with id: " + userId + "and pokedex Number: " + pokedexNumber);
         }
         return userPokemon.get();
+    }
+
+    @GetMapping("/{userId}/shiny")
+    public ResponseEntity<List<UserPokemon>> findUserShinyPokemon(@PathVariable long userId){
+        List<UserPokemon> userPokemon = this.userPokemonService.findUserShinyPokemon(userId);
+
+        if(userPokemon.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(userPokemon);
     }
 }

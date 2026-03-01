@@ -6,10 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserPokemonRepository extends JpaRepository<UserPokemon, UserPokemonId> {
-    @Query("Select p from UserPokemon p WHERE p.userId = :userId AND p.pokedexNumber = :pokedexNumber")
+    @Query("Select p from UserPokemon p WHERE p.userId = :userId AND p.pokedexNumber = :pokedexNumber AND p.caught = true")
     Optional<UserPokemon> findUserPokemon(long userId, int pokedexNumber);
+
+    @Query("Select p from UserPokemon p WHERE p.userId = :userId AND p.caught = true AND p.shiny = true")
+    List<UserPokemon> findUserShinyPokemon(long userId);
 }

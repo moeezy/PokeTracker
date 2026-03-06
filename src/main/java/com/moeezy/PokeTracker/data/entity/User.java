@@ -1,9 +1,6 @@
 package com.moeezy.PokeTracker.data.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 
@@ -13,9 +10,16 @@ import lombok.ToString;
 @ToString
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="user_id")
     private int userId;
 
-    @Column(name="username")
+    @Column(nullable = false, name="username")
     private String username;
+
+    @Column(nullable = false, name="email")
+    private String email;
+
+    @Column(nullable = false, name="password_hash")
+    private String passwordHash;
 }

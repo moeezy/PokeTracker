@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.ToString;
 
 @Entity
-@Table(name="route")
+@Table(name="routes")
 @Data
 @ToString
 public class Route {

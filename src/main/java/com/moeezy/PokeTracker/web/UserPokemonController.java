@@ -1,5 +1,6 @@
 package com.moeezy.PokeTracker.web;
 
+import com.moeezy.PokeTracker.data.dto.UserPokemonDTO;
 import com.moeezy.PokeTracker.data.entity.UserPokemon;
 import com.moeezy.PokeTracker.service.UserPokemonService;
 import com.moeezy.PokeTracker.web.exception.NotFoundException;
@@ -25,8 +26,8 @@ public class UserPokemonController {
     }
 
     @GetMapping("/{userId}/{pokedexNumber}")
-    public UserPokemon findUserPokemon(@PathVariable long userId, @PathVariable int pokedexNumber){
-        Optional<UserPokemon> userPokemon = this.userPokemonService.findUserPokemon(userId, pokedexNumber);
+    public UserPokemon findUserIndividualPokemon(@PathVariable long userId, @PathVariable int pokedexNumber){
+        Optional<UserPokemon> userPokemon = this.userPokemonService.findUserIndividualPokemon(userId, pokedexNumber);
 
         if(userPokemon.isEmpty()){
             throw new NotFoundException("UserPokemon not found with id: " + userId + "and pokedex Number: " + pokedexNumber);
@@ -37,6 +38,17 @@ public class UserPokemonController {
     @GetMapping("/{userId}/shiny")
     public ResponseEntity<List<UserPokemon>> findUserShinyPokemon(@PathVariable long userId){
         List<UserPokemon> userPokemon = this.userPokemonService.findUserShinyPokemon(userId);
+
+        if(userPokemon.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(userPokemon);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<UserPokemonDTO>> findUserPokemon(@PathVariable long userId){
+        List<UserPokemonDTO> userPokemon = this.userPokemonService.findUserPokemon(userId);
 
         if(userPokemon.isEmpty()){
             return ResponseEntity.noContent().build();

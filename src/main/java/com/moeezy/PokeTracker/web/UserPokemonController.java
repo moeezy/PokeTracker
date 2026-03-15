@@ -26,8 +26,8 @@ public class UserPokemonController {
     }
 
     @GetMapping("/{userId}/{pokedexNumber}")
-    public UserPokemonDTO findUserIndividualPokemon(@PathVariable long userId, @PathVariable int pokedexNumber){
-        Optional<UserPokemonDTO> userPokemon = this.userPokemonService.findUserIndividualPokemon(userId, pokedexNumber);
+    public UserPokemon findUserIndividualPokemon(@PathVariable long userId, @PathVariable int pokedexNumber){
+        Optional<UserPokemon> userPokemon = this.userPokemonService.findUserIndividualPokemon(userId, pokedexNumber);
 
         if(userPokemon.isEmpty()){
             throw new NotFoundException("UserPokemon not found with id: " + userId + "and pokedex Number: " + pokedexNumber);
@@ -36,8 +36,8 @@ public class UserPokemonController {
     }
 
     @GetMapping("/{userId}/shiny")
-    public ResponseEntity<List<UserPokemonDTO>> findUserShinyPokemon(@PathVariable long userId){
-        List<UserPokemonDTO> userPokemon = this.userPokemonService.findUserShinyPokemon(userId);
+    public ResponseEntity<List<UserPokemon>> findUserShinyPokemon(@PathVariable long userId){
+        List<UserPokemon> userPokemon = this.userPokemonService.findUserShinyPokemon(userId);
 
         if(userPokemon.isEmpty()){
             return ResponseEntity.noContent().build();

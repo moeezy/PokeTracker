@@ -18,7 +18,7 @@ public interface UserPokemonRepository extends JpaRepository<UserPokemon, UserPo
     Optional<UserPokemon> findUserIndividualPokemon(long userId, int pokedexNumber);
 
     @Query("SELECT p FROM UserPokemon p WHERE p.userId = :userId AND p.caught = true AND p.shiny = true")
-    List<Object[]> findUserShinyPokemon(long userId);
+    List<UserPokemon> findUserShinyPokemon(long userId);
 
     @Query(value = """
     SELECT

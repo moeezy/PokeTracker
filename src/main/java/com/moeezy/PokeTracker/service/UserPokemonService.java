@@ -21,18 +21,12 @@ public class UserPokemonService {
         this.userPokemonRepository = userPokemonRepository;
     }
 
-    public Optional<UserPokemonDTO> findUserIndividualPokemon(long userId, int pokedexNumber){
-        return findUserIndividualPokemon(userId, pokedexNumber);
+    public Optional<UserPokemon> findUserIndividualPokemon(long userId, int pokedexNumber){
+        return userPokemonRepository.findUserIndividualPokemon(userId, pokedexNumber);
     }
 
-    public List<UserPokemonDTO> findUserShinyPokemon(long userId){
-            List<Object[]> userShinyPokemon = userPokemonRepository.findUserShinyPokemon(userId);
-            return userShinyPokemon.stream().map(r -> new UserPokemonDTO(
-                    (Integer) r[0],
-                    (String) r[1],
-                    (Boolean) r[2],
-                    (Boolean) r[3]
-            )).toList();
+    public List<UserPokemon> findUserShinyPokemon(long userId){
+        return userPokemonRepository.findUserShinyPokemon(userId);
     }
 
     public List<UserPokemonDTO> findUserPokemon(long userId){

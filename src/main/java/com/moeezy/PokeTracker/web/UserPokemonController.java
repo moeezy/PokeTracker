@@ -1,15 +1,15 @@
 package com.moeezy.PokeTracker.web;
 
+import com.moeezy.PokeTracker.data.dto.UpsertUserPokemonDTO;
 import com.moeezy.PokeTracker.data.dto.UserPokemonDTO;
 import com.moeezy.PokeTracker.data.entity.UserPokemon;
 import com.moeezy.PokeTracker.service.UserPokemonService;
 import com.moeezy.PokeTracker.web.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +26,8 @@ public class UserPokemonController {
     }
 
     @GetMapping("/{userId}/{pokedexNumber}")
-    public UserPokemon findUserIndividualPokemon(@PathVariable long userId, @PathVariable int pokedexNumber){
-        Optional<UserPokemon> userPokemon = this.userPokemonService.findUserIndividualPokemon(userId, pokedexNumber);
+    public UserPokemonDTO findUserIndividualPokemon(@PathVariable long userId, @PathVariable int pokedexNumber){
+        Optional<UserPokemonDTO> userPokemon = this.userPokemonService.findUserIndividualPokemon(userId, pokedexNumber);
 
         if(userPokemon.isEmpty()){
             throw new NotFoundException("UserPokemon not found with id: " + userId + "and pokedex Number: " + pokedexNumber);
@@ -36,8 +36,8 @@ public class UserPokemonController {
     }
 
     @GetMapping("/{userId}/shiny")
-    public ResponseEntity<List<UserPokemon>> findUserShinyPokemon(@PathVariable long userId){
-        List<UserPokemon> userPokemon = this.userPokemonService.findUserShinyPokemon(userId);
+    public ResponseEntity<List<UserPokemonDTO>> findUserShinyPokemon(@PathVariable long userId){
+        List<UserPokemonDTO> userPokemon = this.userPokemonService.findUserShinyPokemon(userId);
 
         if(userPokemon.isEmpty()){
             return ResponseEntity.noContent().build();
@@ -55,5 +55,13 @@ public class UserPokemonController {
         }
 
         return ResponseEntity.ok(userPokemon);
+    }
+
+    @PostMapping("/{userId}")
+    public ResponseEntity<Void> updateUserPokemon(
+            @PathVariable long userId,
+            @RequestBody @Validated UpsertUserPokemonDTO updatedPokemon){
+        userPokemonService.upsertUserPokemon(userId, updatedPokemon);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

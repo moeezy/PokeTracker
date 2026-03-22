@@ -41,6 +41,10 @@ public class UserPokemonService {
     }
     @Transactional
     public void upsertUserPokemon(long userId, UpsertUserPokemonDTO pokemon){
+        System.out.println("Upserted: " + userId);
+        System.out.println("Upserted: " + pokemon.getPokedexNumber());
+        System.out.println("Upserted: " + pokemon.getCaught());
+        System.out.println("Upserted: " + pokemon.getShiny());
         userPokemonRepository.upsertUserPokemon(userId, pokemon.getPokedexNumber(), pokemon.getCaught(), pokemon.getShiny());
     }
 }

@@ -53,7 +53,7 @@ public interface UserPokemonRepository extends JpaRepository<UserPokemon, UserPo
       shiny = EXCLUDED.shiny;
     """, nativeQuery = true)
     void upsertUserPokemon(@Param("userId") long userId,
-                           @Param("pokedexNumber") int pokedexNumber,
+                           @Param("pokedex_number") int pokedexNumber,
                            @Param("caught") boolean caught,
                            @Param("shiny") boolean shiny);
 }

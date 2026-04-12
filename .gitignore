@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 src/main/resources/application.properties
+
+src\main\java\com\moeezy\PokeTracker\web\TestController.java
+src\main\java\com\moeezy\PokeTracker\service\TestService.java
+src\main\java\com\moeezy\PokeTracker\data\dto\TestDto.java
 ### STS ###
 .apt_generated
 .classpath

@@ -1,5 +1,6 @@
 package com.moeezy.PokeTracker.data.dto;
 
+//used for updating userPokemon data
 public class UpsertUserPokemonDTO {
     private Integer pokedexNumber;
     private Boolean caught;

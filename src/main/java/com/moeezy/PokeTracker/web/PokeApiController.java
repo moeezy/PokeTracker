@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/v1/PokeApi")
@@ -18,8 +20,13 @@ public class PokeApiController {
     private PokeApiService pokeApiService;
 
     @GetMapping("/{id}")
-    public Mono<PokemonSpeciesDto> getPost(@PathVariable int id) {
-        return pokeApiService.retrieve(id);
+    public Mono<PokemonSpeciesDto> getSpecies(@PathVariable int id) {
+        return pokeApiService.retrieveSpeciesData(id);
+    }
+
+    @GetMapping("/{id}/type")
+    public List<String> getType(@PathVariable int id) {
+        return pokeApiService.retrieveTypeData(id);
     }
 }
 

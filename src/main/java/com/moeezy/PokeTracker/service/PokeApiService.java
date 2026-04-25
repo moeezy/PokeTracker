@@ -16,6 +16,21 @@ public class PokeApiService {
     @Autowired
     WebClient webClient;
 
+    public void savePokemon(int id){
+        Mono<PokemonSpeciesDto> species = retrieveSpeciesData(id);
+        List<String> types = retrieveTypeData(id);
+
+        int genderRate = species.block().getGender_rate();
+        String name = species.block().getName();
+        System.out.println(id);
+        System.out.println(genderRate);
+        System.out.println(name);
+        System.out.println(types.get(0));
+        if(types.size() == 2){
+            System.out.println(types.get(1));
+        }
+    }
+
     public Mono<PokemonSpeciesDto> retrieveSpeciesData(int id){
 
         Mono<PokemonSpeciesDto> speciesData = webClient

@@ -1,6 +1,7 @@
 package com.moeezy.PokeTracker.service;
 
 import com.moeezy.PokeTracker.data.dto.PokeApi.PokemonSpeciesDto;
+import com.moeezy.PokeTracker.data.repository.PokemonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,19 +17,34 @@ public class PokeApiService {
     @Autowired
     WebClient webClient;
 
+    private final PokemonRepository pokemonRepository;
+
+    @Autowired PokeApiService(PokemonRepository pokemonRepository){
+        this.pokemonRepository = pokemonRepository;
+    }
+
     public void savePokemon(int id){
         Mono<PokemonSpeciesDto> species = retrieveSpeciesData(id);
         List<String> types = retrieveTypeData(id);
 
         int genderRate = species.block().getGender_rate();
+        boolean hasGender = hasGender(genderRate);
         String name = species.block().getName();
-        System.out.println(id);
-        System.out.println(genderRate);
-        System.out.println(name);
-        System.out.println(types.get(0));
+        String primaryType = types.get(0);
+        String secondaryType;
         if(types.size() == 2){
-            System.out.println(types.get(1));
+            secondaryType = types.get(1);
         }
+        else{
+            secondaryType = null;
+        }
+        pokemonRepository.upsertPokemon(id, name, primaryType, secondaryType, hasGender);
+        System.out.println("Upserted " + name + " " + primaryType + " " + secondaryType + " gendered: " + hasGender);
+
+    }
+
+    private boolean hasGender(int genderRate){
+        return genderRate > 0 && genderRate < 8;
     }
 
     public Mono<PokemonSpeciesDto> retrieveSpeciesData(int id){

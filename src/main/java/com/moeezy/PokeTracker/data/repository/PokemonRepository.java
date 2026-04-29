@@ -17,7 +17,7 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Integer> {
     INSERT INTO pokemon (pokedex_number, name, primary_type, secondary_type, has_gender)
     VALUES (:pokedex_number, :name, :primary_type, :secondary_type, :has_gender);
     """, nativeQuery = true)
-    void upsertPokemon(@Param("pokedex_number") int pokedexNumber,
+    void insertPokemon(@Param("pokedex_number") int pokedexNumber,
                        @Param("name") String name,
                        @Param("primary_type") String primaryType,
                        @Param("secondary_type") String secondaryType,

@@ -29,10 +29,16 @@ public class PokeApiController {
         return pokeApiService.retrieveTypeData(id);
     }
 
-    @GetMapping("/{id}/all")
+    @GetMapping("/{id}/save")
     public String savePokemonVoid(@PathVariable int id) {
         pokeApiService.savePokemon(id);
         return "Success?";
+    }
+
+    @GetMapping("/gen4")
+    public String savePokemonGen4() {
+        pokeApiService.saveAllPokemon();
+        return "Success??";
     }
 }
 

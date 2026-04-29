@@ -2,6 +2,7 @@ package com.moeezy.PokeTracker.service;
 
 import com.moeezy.PokeTracker.data.dto.PokeApi.PokemonSpeciesDto;
 import com.moeezy.PokeTracker.data.repository.PokemonRepository;
+import com.moeezy.PokeTracker.web.exception.PokemonUpsertException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,6 +15,8 @@ import java.util.List;
 @Service
 public class PokeApiService {
 
+    private static final int sinnoh = 493;
+
     @Autowired
     WebClient webClient;
 
@@ -21,6 +24,16 @@ public class PokeApiService {
 
     @Autowired PokeApiService(PokemonRepository pokemonRepository){
         this.pokemonRepository = pokemonRepository;
+    }
+
+    public void saveAllPokemon(){
+        for(int i = 1; i <= sinnoh; i++){
+            try{
+                savePokemon(i);
+            } catch (PokemonUpsertException e) {
+                throw new PokemonUpsertException("Upsert failed for Pokemon: " + i + " " + e.getMessage());
+            }
+        }
     }
 
     public void savePokemon(int id){
@@ -38,7 +51,11 @@ public class PokeApiService {
         else{
             secondaryType = null;
         }
-        pokemonRepository.upsertPokemon(id, name, primaryType, secondaryType, hasGender);
+        try {
+            pokemonRepository.upsertPokemon(id, name, primaryType, secondaryType, hasGender);
+        } catch (PokemonUpsertException e) {
+            throw new PokemonUpsertException("Upsert failed for Pokemon: " + id + " " + e.getMessage());
+        }
         System.out.println("Upserted " + name + " " + primaryType + " " + secondaryType + " gendered: " + hasGender);
 
     }

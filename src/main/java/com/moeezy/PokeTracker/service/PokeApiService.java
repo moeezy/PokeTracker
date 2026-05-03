@@ -17,6 +17,7 @@ import java.util.List;
 public class PokeApiService {
 
     private static final int SINNOH = 493;
+    private static final String GAME = "heartgold";
     private static final int GENDERLESS = 0;
     private static final int ONLY_ONE_GENDER = 8;
 
@@ -106,4 +107,33 @@ public class PokeApiService {
 
         return typeData;
     }
+
+    //to be deprecated
+    public List<JsonNode> routeData(int id){
+        List<JsonNode> encounterData= new ArrayList<JsonNode>();
+        JsonNode jsonNode = webClient
+                .get()
+                .uri("/pokemon/" + id + "/encounters")
+                .retrieve()
+                .onStatus(
+                        status -> status.is4xxClientError(),
+                        response -> Mono.error(new RuntimeException("Pokemon Encounters not found"))
+                )
+                .bodyToMono(JsonNode.class).block();
+
+        for(JsonNode encounters : jsonNode){
+            JsonNode encountersForLocation = encounters.path("version_details");
+            for(JsonNode versions : encountersForLocation){
+                if(versions.path("version").path("name").asString().equals(GAME)){
+                    System.out.println(versions.path("location_area"));
+                    System.out.println(versions.path("encounter_details"));
+                    encounterData.add(encounters.path("location_area"));
+                    encounterData.add(versions.path("encounter_details"));
+                }
+            }
+        }
+        return encounterData;
+    }
+
+
 }

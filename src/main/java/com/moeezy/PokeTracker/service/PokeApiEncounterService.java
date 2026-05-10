@@ -2,6 +2,10 @@ package com.moeezy.PokeTracker.service;
 
 import com.moeezy.PokeTracker.data.dto.PokeApi.EncounterKey;
 import com.moeezy.PokeTracker.data.dto.PokeApi.PokemonEncounterProcessingDto;
+import com.moeezy.PokeTracker.data.entity.Route;
+import com.moeezy.PokeTracker.data.entity.RouteEncounter;
+import com.moeezy.PokeTracker.data.repository.RouteEncounterRepository;
+import com.moeezy.PokeTracker.data.repository.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,8 +23,18 @@ public class PokeApiEncounterService {
     private static final String TIME = "time";
     private static final String RADIO = "radio";
     private static final String SWARM = "swarm";
+    private static final String NOT_APPLICABLE = "NA";
     @Autowired
     WebClient webClient;
+
+    private final RouteEncounterRepository routeEncounterRepository;
+    private final RouteRepository routeRepository;
+
+    @Autowired
+    PokeApiEncounterService(RouteEncounterRepository routeEncounterRepository, RouteRepository routeRepository){
+        this.routeEncounterRepository = routeEncounterRepository;
+        this.routeRepository = routeRepository;
+    }
 
     public void allRegionRoutes(int id){
         JsonNode Routes = webClient.get()
@@ -42,25 +56,32 @@ public class PokeApiEncounterService {
     }
 
     public void routeProcessing(String id){
-        JsonNode areas =  webClient.get()
+        JsonNode location =  webClient.get()
                 .uri("/location/" + id + "/")
                 .retrieve()
                 .onStatus(
                         status -> status.is4xxClientError(),
                         response -> Mono.error(new RuntimeException("Location not found"))
-                ).bodyToMono(JsonNode.class).block().path("areas");
+                ).bodyToMono(JsonNode.class).block();
+        String locationName = location.path("name").asString();
+
+        JsonNode areas = location.path("areas");
 
         for(JsonNode area : areas){
+
             String areaUri = area.path("url").asString();
             String areaUriPath = "https://pokeapi.co/api/v2/location-area/";
             int startIdx = areaUri.indexOf(areaUriPath);
-            String routeId = areaUri.substring(startIdx + areaUriPath.length(), areaUri.length() - 1);
-            System.out.println(areaUri);
-            areaProcessing(routeId);
+            String areaId = areaUri.substring(startIdx + areaUriPath.length(), areaUri.length() - 1);
+            String areaName = area.path("name").asString();
+            System.out.println("******" + areaUri + "******");
+            System.out.println("Attempting Route Insertion: route id:" + areaId + " area id: " + id);
+            saveRoute(id, locationName, areaId, areaName);
+            areaProcessing(areaId, id);
         }
     }
     //build on this to save to route repo
-    public void areaProcessing(String id){
+    public void areaProcessing(String id, String locationId){
         JsonNode area =  webClient.get()
                 .uri("/location-area/" + id + "/")
                 .retrieve()
@@ -68,14 +89,16 @@ public class PokeApiEncounterService {
                         status -> status.is4xxClientError(),
                         response -> Mono.error(new RuntimeException("Location Area not found"))
                 ).bodyToMono(JsonNode.class).block();
-        String areaName = area.path("name").asString();
-        int areaId = area.path("id").asInt();
+        String areaId = area.path("id").asString();
         JsonNode encounters = area.path("pokemon_encounters");
         for(JsonNode encounter : encounters){
             JsonNode versions = encounter.path("version_details");
             for(JsonNode version : versions){
                 if(version.path("version").path("name").asString().equals(GAME)){
-                    String pokemonName = encounter.path("pokemon").path("name").asString();
+                    String pokemonIdUri = encounter.path("pokemon").path("url").asString();
+                    String pokemonIdUriPath = "https://pokeapi.co/api/v2/pokemon/";
+                    int startIdx = pokemonIdUri.indexOf(pokemonIdUriPath);
+                    String pokemonId = pokemonIdUri.substring(startIdx + pokemonIdUriPath.length(), pokemonIdUri.length() - 1);
                     List<PokemonEncounterProcessingDto> enc = new ArrayList<>();
                     for(JsonNode conds: version.path("encounter_details")) {
                             String time = time(conds.path("condition_values"));
@@ -84,7 +107,7 @@ public class PokeApiEncounterService {
                             String method = conds.path("method").path("name").asString();
                             enc.add(new PokemonEncounterProcessingDto(method, time, radio, swarm));
                     }
-                    savePokemonEncounters(enc, pokemonName, areaName, areaId);
+                    savePokemonEncounters(enc, pokemonId, areaId, locationId);
 
                 }
             }
@@ -92,12 +115,59 @@ public class PokeApiEncounterService {
 
     }
 
-    private void savePokemonEncounters(List<PokemonEncounterProcessingDto> encounters, String pokemon, String areaName, int areaId){
+    private void savePokemonEncounters(List<PokemonEncounterProcessingDto> encounters, String pokemon, String areaId, String locationId){
         List<PokemonEncounterProcessingDto> processed = processPokemonEncounters(encounters);
-        System.out.println("Area: " + areaName + " ID: " + areaId);
+        System.out.println("area " + areaId + " | location: " + locationId);
         for (PokemonEncounterProcessingDto pokemonData : processed){
-            System.out.println("Pokemon: " + pokemon + " method: " + pokemonData.getMethod() + " time: " + pokemonData.getTime() + " radio: " + pokemonData.getRadio() + " swarm: " + pokemonData.getSwarm());
+            savePokemonEncounter(pokemonData, pokemon, areaId, locationId);
+           // System.out.println("Pokemon: " + pokemon + " method: " + pokemonData.getMethod() + " time: " + pokemonData.getTime() + " radio: " + pokemonData.getRadio() + " swarm: " + pokemonData.getSwarm());
         }
+    }
+
+    private void savePokemonEncounter(PokemonEncounterProcessingDto encounter, String pokemon, String areaId, String locationId){
+        int pokemonId = Integer.parseInt(pokemon);
+        int area = Integer.parseInt(areaId);
+        int location = Integer.parseInt(locationId);
+        String time = encounter.getTime();
+        String radio;
+        if (encounter.getRadio().equals(NOT_APPLICABLE)){
+            radio = null;
+        }
+        else{
+            radio = encounter.getRadio();
+        }
+        String swarm;
+        if (encounter.getSwarm().equals(NOT_APPLICABLE)){
+            swarm = null;
+        }
+        else{
+            swarm = encounter.getSwarm();
+        }
+        String method = encounter.getMethod();
+
+        RouteEncounter routeEncounter = new RouteEncounter();
+
+        routeEncounter.setRouteId(location);
+        routeEncounter.setAreaId(area);
+        routeEncounter.setPokedexNumber(pokemonId);
+        routeEncounter.setTime(time);
+        routeEncounter.setRadio(radio);
+        routeEncounter.setSwarm(swarm);
+        routeEncounter.setMethod(method);
+
+        routeEncounterRepository.save(routeEncounter);
+    }
+
+    private void saveRoute(String routeId, String routeName, String areaId, String areaName){
+        int areaNum = Integer.parseInt(areaId);
+        int routeNum = Integer.parseInt(routeId);
+
+        Route route = new Route();
+        route.setRouteId(routeNum);
+        route.setAreaId(areaNum);
+        route.setRouteName(routeName);
+        route.setAreaName(areaName);
+        routeRepository.save(route);
     }
 
     private  List<PokemonEncounterProcessingDto> processPokemonEncounters(List<PokemonEncounterProcessingDto> encounters){
@@ -138,7 +208,6 @@ public class PokeApiEncounterService {
         }
         return "NA";
     }
-
 
     private String radio(JsonNode condition_values){
         for(JsonNode condition : condition_values) {

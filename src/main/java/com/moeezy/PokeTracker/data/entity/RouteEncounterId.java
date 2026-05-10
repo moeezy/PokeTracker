@@ -11,12 +11,14 @@ import java.util.Objects;
 @Getter
 public class RouteEncounterId implements Serializable {
     private int routeId;
+    private int areaId;
     private int pokedexNumber;
     private String time;
     private String method;
 
-    public RouteEncounterId(int routeId, int pokedexNumber, String time, String method){
+    public RouteEncounterId(int routeId, int areaId, int pokedexNumber, String time, String method){
         this.routeId = routeId;
+        this.areaId = areaId;
         this.pokedexNumber = pokedexNumber;
         this.time = time;
         this.method = method;
@@ -26,11 +28,11 @@ public class RouteEncounterId implements Serializable {
     public boolean equals(Object o){
         if (this == o) return true;
         if (!(o instanceof RouteEncounterId routeEncounterId)) return false;
-        return routeId == routeEncounterId.routeId && pokedexNumber == routeEncounterId.pokedexNumber && Objects.equals(time, routeEncounterId.time) && Objects.equals(method, routeEncounterId.method);
+        return routeId == routeEncounterId.routeId && areaId == routeEncounterId.areaId && pokedexNumber == routeEncounterId.pokedexNumber && Objects.equals(time, routeEncounterId.time) && Objects.equals(method, routeEncounterId.method);
     }
 
     @Override
     public int hashCode(){
-        return Objects.hash(routeId, pokedexNumber, time, method);
+        return Objects.hash(routeId, areaId, pokedexNumber, time, method);
     }
 }

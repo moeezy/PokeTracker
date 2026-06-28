@@ -1,5 +1,6 @@
 package com.moeezy.PokeTracker.web;
 
+import com.moeezy.PokeTracker.data.dto.RouteEncounterMap.RouteDto;
 import com.moeezy.PokeTracker.data.entity.RouteEncounter;
 import com.moeezy.PokeTracker.service.RouteEncounterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,12 @@ public class RouteEncounterController {
             return ResponseEntity.noContent().build();
         }
 
+        return ResponseEntity.ok(routeEncounter);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<RouteDto>> findAllMapPokemon(@PathVariable int userId){
+        List<RouteDto> routeEncounter = routeEncounterService.findAvailablePokemonMap(userId);
         return ResponseEntity.ok(routeEncounter);
     }
 }

@@ -38,7 +38,7 @@ public class AuthService {
     // Unlike the other services, this has to check for duplicates before writing - usernames/emails
     // must be unique or login can't identify a single account.
     @Transactional
-    public void register(RegisterUserDTO registerUserDTO){
+    public AuthResponseDTO register(RegisterUserDTO registerUserDTO){
         if(userRepository.existsByUsername(registerUserDTO.getUsername())){
             throw new UserAlreadyExistsException("Username already taken: " + registerUserDTO.getUsername());
         }
@@ -52,6 +52,9 @@ public class AuthService {
         // Only the bcrypt hash is ever persisted - the raw password never touches the database.
         user.setPassword(passwordEncoder.encode(registerUserDTO.getPassword()));
         userRepository.save(user);
+        int id = userRepository.findByUsername(registerUserDTO.getUsername()).getUserId();
+        String token = jwtTokenProvider.createToken(registerUserDTO.getUsername());
+        return new AuthResponseDTO(token, registerUserDTO.getUsername(), id);
     }
 
     // Credential checking is delegated to Spring Security's AuthenticationManager, which uses
@@ -65,7 +68,8 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid username or password");
         }
 
+        int id = userRepository.findByUsername(loginUserDTO.getUsername()).getUserId();
         String token = jwtTokenProvider.createToken(loginUserDTO.getUsername());
-        return new AuthResponseDTO(token);
+        return new AuthResponseDTO(token, loginUserDTO.getUsername(), id);
     }
 }

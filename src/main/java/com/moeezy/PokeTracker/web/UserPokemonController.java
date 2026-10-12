@@ -3,6 +3,7 @@ package com.moeezy.PokeTracker.web;
 import com.moeezy.PokeTracker.data.dto.UpsertUserPokemonDTO;
 import com.moeezy.PokeTracker.data.dto.UserPokemonDTO;
 import com.moeezy.PokeTracker.data.entity.UserPokemon;
+import com.moeezy.PokeTracker.security.CurrentUserService;
 import com.moeezy.PokeTracker.service.UserPokemonService;
 import com.moeezy.PokeTracker.web.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +21,17 @@ import java.util.Optional;
 public class UserPokemonController {
 
     private final UserPokemonService userPokemonService;
+    private final CurrentUserService currentUserService;
 
     @Autowired
-    public UserPokemonController(UserPokemonService userPokemonService){
+    public UserPokemonController(UserPokemonService userPokemonService, CurrentUserService currentUserService){
         this.userPokemonService = userPokemonService;
+        this.currentUserService = currentUserService;
     }
 
     @GetMapping("/{userId}/{pokedexNumber}")
     public UserPokemon findUserIndividualPokemon(@PathVariable long userId, @PathVariable int pokedexNumber){
+        currentUserService.verifyIsSelf(userId);
         Optional<UserPokemon> userPokemon = this.userPokemonService.findUserIndividualPokemon(userId, pokedexNumber);
 
         if(userPokemon.isEmpty()){
@@ -38,6 +42,7 @@ public class UserPokemonController {
 
     @GetMapping("/{userId}/shiny")
     public ResponseEntity<List<UserPokemon>> findUserShinyPokemon(@PathVariable long userId){
+        currentUserService.verifyIsSelf(userId);
         List<UserPokemon> userPokemon = this.userPokemonService.findUserShinyPokemon(userId);
 
         if(userPokemon.isEmpty()){
@@ -49,6 +54,7 @@ public class UserPokemonController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<UserPokemonDTO>> findUserPokemon(@PathVariable long userId){
+        currentUserService.verifyIsSelf(userId);
         List<UserPokemonDTO> userPokemon = this.userPokemonService.findUserPokemon(userId);
 
         if(userPokemon.isEmpty()){
@@ -62,6 +68,7 @@ public class UserPokemonController {
     public ResponseEntity<Void> updateUserPokemon(
             @PathVariable long userId,
             @RequestBody @Validated UpsertUserPokemonDTO updatedPokemon){
+        currentUserService.verifyIsSelf(userId);
         userPokemonService.upsertUserPokemon(userId, updatedPokemon);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

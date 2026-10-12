@@ -1,6 +1,7 @@
 package com.moeezy.PokeTracker.web;
 
 import com.moeezy.PokeTracker.data.entity.RouteEncounter;
+import com.moeezy.PokeTracker.security.CurrentUserService;
 import com.moeezy.PokeTracker.service.RouteEncounterService;
 import org.junit.jupiter.api.Test;
 import static org.hamcrest.core.Is.is;
@@ -34,6 +35,9 @@ public class RouteEncounterControllerTest {
 
     @MockitoBean
     private RouteEncounterService routeEncounterServiceMock;
+
+    @MockitoBean
+    private CurrentUserService currentUserServiceMock;
 
 
     //methods to test
